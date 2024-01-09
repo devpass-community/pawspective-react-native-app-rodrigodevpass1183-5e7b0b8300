@@ -1,0 +1,31 @@
+name: Devpass checks
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [19.x]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Download test file
+        run: curl -0 https://devpass-api-bucket.s3.amazonaws.com/testes/ACL/ReactNativeChallenge/App.test.js -o App.test.js
+
+      - run: npm ci
+      - run: npm run build --if-present
+
+      - name: Run Unit Tests
+        run: npm run test
